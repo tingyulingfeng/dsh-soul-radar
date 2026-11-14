@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "title": "Emotion radar",
+    "description": "A simulated reader for Chinese long-form prose. It reads the way a reader would — where interest lifts, where it drops, where the reader gets lost — and hands the agent measurable data about that reaction. The agent uses the data to write the feedback a user actually reads.",
+    "detail": "docs/DETAIL.md"
+  },
+  "tools": {
+    "lt_score": {
+      "name": "Score a piece",
+      "description": "Read a piece the way a reader would, and return the reading data plus a report written for the calling agent."
+    },
+    "lt_rules": {
+      "name": "List the criteria",
+      "description": "Show every scoring criterion: what it measures, its status, and the evidence it rests on."
+    },
+    "lt_demo": {
+      "name": "Run the built-in sample",
+      "description": "Score the bundled sample article, so an agent can see what a report looks like without supplying a piece."
+    }
+  }
+}

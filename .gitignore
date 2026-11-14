@@ -1,0 +1,15 @@
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+# local runs of the sample leave artefacts
+run-报告.md
+run-报告.json
+_test*.mjs
+_cmp*.mjs
+_dbg*.mjs
+_v.mjs
+_j.mjs
+_l.mjs
+_jj.mjs
+_all*.mjs
