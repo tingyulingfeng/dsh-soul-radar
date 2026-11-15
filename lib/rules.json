@@ -1,0 +1,1028 @@
+{
+  "_说明": "灵魂雷达 v2 · 判据登记表。每一条判据都在这里有一个对象：阈值、依据出处、状态、开关。代码不认识具体判据，只按表执行。",
+  "_版本": 2,
+  "_建立": "2026-11-12",
+  "_依据来源": "补充依据.txt(168行) / 术语表.md / 补充依据-2026-11-10要点.md",
+  "_字段说明": {
+    "id": "判据唯一标识，代码里只认这个",
+    "item": "归属的评分项（atmos/fubi/desc/lang/logic/theme/joke/link）",
+    "kind": "deduct=扣分子项 / add=加分子项",
+    "desc": "人话描述",
+    "thresholds": "所有数值参数，代码里不许出现魔法数",
+    "cap": "本判据最多扣/加多少分",
+    "flag": "命中时发什么 FLAG（{段号} {说明} 会被替换）",
+    "enabled": "true=生效，false=关掉但保留",
+    "status": "定稿 / 待核 / 待测 / 已推翻",
+    "basis": "依据出处，必须能指回原文",
+    "code_hint": null,
+    "side": "score"
+  },
+  "atmos": {
+    "label": "氛围铺垫",
+      "judge_hint": "起伏够不够要按这篇的用途看——日记和实验稿不该按成稿量。你看：这几处大落差，读者跟得上吗？前面的铺垫有没有把他牵过去？",
+    "full": 41.83,
+    "items": {
+      "1-1": {
+        "label": "落差",
+        "full": 9.0,
+        "rules": [
+          {
+            "id": "atmos_drop_max",
+            "kind": "deduct",
+            "desc": "落差：最大落差（满 6 级）+ 大落差（≥4 级）个数，各占一半",
+            "thresholds": {
+              "d_max_full": 6,
+              "big_th": 4,
+              "big_full": 3,
+              "w_max": 0.5,
+              "w_big": 0.5
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "补充依据.txt 一、衔接 + 情绪二维坐标约定",
+            "code_hint": "d_max_full",
+            "side": "score"
+          }
+        ]
+      },
+      "1-2": {
+        "label": "节奏",
+        "full": 9.0,
+        "rules": [
+          {
+            "id": "atmos_rhythm_cv",
+            "kind": "deduct",
+            "desc": "节奏：拐点间隔的变异系数 + 拐点密度的加权",
+            "thresholds": {
+              "cv_best": [
+                0.6,
+                1.2
+              ],
+              "cv_zero": [
+                0.15,
+                1.8
+              ],
+              "density_best": [
+                0.15,
+                0.35
+              ],
+              "density_zero": [
+                0.05,
+                0.6
+              ],
+              "w_cv": 0.6,
+              "w_den": 0.4
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "作者 2026-11-07 定的节奏判据",
+            "code_hint": "cv_best",
+            "side": "score"
+          },
+          {
+            "id": "atmos_rhythm_amp",
+            "kind": "deduct",
+            "desc": "幅度系数：平均相邻差 ÷ 0.5（6级满幅=3.0）",
+            "thresholds": {
+              "amp_ref": 0.5,
+              "floor": 0.6,
+              "weight": 0.4
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "作者 2026-11-09：节奏要管幅度，多而小不能给满分。0.6+0.4×系数，六折保底",
+            "code_hint": "_amp_c",
+            "side": "score"
+          }
+        ]
+      },
+      "1-3": {
+        "label": "连贯性",
+        "full": 8.1,
+        "rules": [
+          {
+            "id": "atmos_jump",
+            "kind": "deduct",
+            "desc": "无载体跳变：落差 ≥4 级且只跨 1 段（跳过去了，没过渡），按占比扣分",
+            "thresholds": {
+              "jump_th": 4,
+              "jump_span": 1,
+              "zero_rate": 0.0909
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "第一版设计。补充依据 41 行：「只有变化，而没有过程」——读者知道变了，感受不到",
+            "code_hint": "jump_th",
+            "note": "待核：这条和共鸣的「思考过程」有关，等逻辑三段判据建好后要重新对一遍\n[2026-11-13 定稿] 补充依据 41 行「只有变化，而没有过程」——读者知道变了，感受不到。判据清楚。\n[2026-11-14 改成按密度扣] 1091 段实测：28 处跳变按「每处 −1」是 −28 分，直接清零；按密度是 2.6%，够不上「每 88 段 8 处」的零点。现在按 zero_rate 算，88 段样例的数一个没动。",
+            "side": "score"
+          },
+          {
+            "id": "atmos_fault",
+            "kind": "hint",
+            "desc": "铺垫断层（只提示）：大落差跨多段，但中间几段高度原地没动",
+            "thresholds": {
+              "min_drop": 4,
+              "min_span": 3,
+              "pen": 0.3,
+              "cap": 0.6
+            },
+            "enabled": false,
+            "status": "已推翻",
+            "basis": "作者 2026-11-07 定的铺垫断层",
+            "code_hint": null,
+            "flag": "铺垫断层：{desc}",
+            "cap": 0,
+            "note": "2026-11-13 降级为提示。理由：它和 1-5 配比问的是同一件事——大落差前面有没有铺垫。1-5 有作者明确给的判据（≥2段 100%/1段 75%/0段 0%），1-3 的断层是同一件事的更细视角，两处都扣就是重复。现在只报「哪里断了」，不扣分。\n[2026-11-13 已推翻] 2026-11-13 降级为提示，且和 1-5 配比问的是同一件事（大落差前面有没有铺垫）。由配比承担，这条退休。",
+            "side": "score",
+            "thresholds_source": "definition"
+          }
+        ]
+      },
+      "1-4": {
+        "label": "丰富度",
+        "full": 6.55,
+        "rules": [
+          {
+            "id": "atmos_func_kinds",
+            "kind": "deduct",
+            "desc": "结构功能丰富度：功能类别（交代/铺垫/蓄势/转折/释放/回收/留白）的归一化熵",
+            "thresholds": {
+              "k_ref": 5
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "作者 2026-11-07",
+            "code_hint": "entropy",
+            "note": "2026-11-13 改名：原来叫「氛围变化丰富度」，但它量的是【结构功能】不是【变化维度】。补充依据里的「维度」指环境/时间/心理/细节的变化，那个归共鸣的 D（dtype 类别数）。这条本身有价值（功能不单调），但不该叫「氛围变化」。",
+            "side": "score"
+          }
+        ]
+      },
+      "1-5": {
+        "label": "配比",
+        "full": 8.1,
+        "rules": [
+          {
+            "id": "atmos_pad_ratio",
+            "kind": "deduct",
+            "desc": "配比铺垫：大落差落点前 3 段里，功能属于交代/铺垫/蓄势/安抚/回收的段数",
+            "thresholds": {
+              "window": 3,
+              "min_drop": 4,
+              "rate_2": 1.0,
+              "rate_1": 0.75,
+              "rate_0": 0.0,
+              "pad_funcs": [
+                "交代",
+                "铺垫",
+                "蓄势",
+                "安抚",
+                "回收"
+              ]
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "作者 2026-11-07：配比铺垫（≥2段 100% / 1段 75% / 0段 0%）",
+            "code_hint": "_prep_count",
+            "note": "2026-11-13 修正：我之前在表里把这条写成「段/级比」并标「从没实现」，那是照 p2 第 56 行的一句过时注释抄的。代码里 263-299 行一直在算配比铺垫，是对的。表错了，不是代码错了。",
+            "side": "score"
+          },
+          {
+            "id": "atmos_too_dense",
+            "kind": "deduct",
+            "desc": "铺垫太密：落点前 3 段全是铺垫，密到不自然（扣配比得分）",
+            "thresholds": {
+              "best": 2,
+              "pen": 0.5
+            },
+            "enabled": true,
+            "status": "定稿",
+            "basis": "补充依据.txt 第 34 行：太密影响自然",
+            "code_hint": "铺垫自然度",
+            "note": "2026-11-13 改：原来是额外加分，但按作者的标准——额外加分量的必须是「卓越」。铺垫太密是【缺陷】，不是「不够卓越」，所以它是扣分。密到一半，配比得分打五折。\\n[2026-11-13 定稿] 补充依据 34 行「太密影响自然」+ 作者确认额外加分要量卓越，缺陷该扣。判据清楚。",
+            "side": "score"
+          }
+        ]
+      }
+    },
+    "thresholds": {
+      "w_natural": 4.0
+    }
+  },
+  "lang": {
+    "label": "语言文字",
+      "judge_hint": "看这几处断句和长段：读者会不会在同一个句子里丢掉线索；有没有你觉得别扭、工具却没抓到的。",
+    "full": 10.5,
+    "deduct_full": 7.0,
+    "add_full": 3.5,
+    "add": {
+      "kind": "ratio",
+      "metric": "concrete_ratio"
+    },
+    "rules": [
+      {
+        "id": "lang_typo",
+        "kind": "hint",
+        "desc": "错别字（不计分，进改良意见）",
+        "thresholds": {
+          "per": 0.5,
+          "cap": 1.0
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "词表太窄，「即便，我是否活过」这类抓不到（2026-11-09 已知）",
+        "flag": null,
+        "code_hint": "PEN_TYPO",
+        "cap": 0,
+        "note": "2026-11-13 作者：不影响大方向判断就不管他（仅指评分），但要汇总进改良意见\n[2026-11-13 定稿] 作者 2026-11-13 明确：不影响大方向就不管（仅指评分），但要汇总进改良意见。这就是它的最终形态。",
+        "side": "score"
+      },
+      {
+        "id": "lang_semantic",
+        "kind": "hint",
+        "desc": "病句 / 语义重复（不计分，进改良意见；句长偏齐已删）",
+        "thresholds": {
+          "flat_cv": null
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "语义重复来自作者 2026-10-22「偷懒≈省事」的纠正",
+        "code_hint": "PEN_SEMANTIC",
+        "cap": 0,
+        "note": "2026-11-13 作者：病句不影响大方向就不管（仅指评分），进改良意见；句长偏齐「是我的个人习惯，有些过于钻牛角尖」→ 删掉，flat 恒为 False\n[2026-11-13 定稿] 同上。句长偏齐已按作者要求删掉，留下语义重复。",
+        "side": "score"
+      },
+      {
+        "id": "lang_para_bloat",
+        "kind": "deduct",
+        "desc": "段落臃肿（单段字数）",
+        "thresholds": {
+          "normal": 80,
+          "bloat": 100,
+          "pen_long": 0.3,
+          "pen_bloat": 0.6
+        },
+        "cap": 2.0,
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-07：臃肿是结构问题，扣在语法这一档",
+        "flag": "段{para} {n}字 {word}",
+        "code_hint": "_T_BLOAT",
+        "side": "score"
+      },
+      {
+        "id": "lang_break",
+        "kind": "deduct",
+        "desc": "断句：一句超 15 字且含 3 个带主语的分句",
+        "thresholds": {
+          "min_len": 15,
+          "min_pron": 3,
+          "alt_clauses": 7,
+          "alt_len": 45,
+          "per": 0.25
+        },
+        "cap": 2.0,
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-08：一句超过 15 字时，是否包含一个以上的完整结构",
+        "flag": "断句：一句 {len} 字里挤了 {n} 个带主语的分句",
+        "code_hint": "_T_BREAK_MIN",
+        "side": "score"
+      },
+      {
+        "id": "lang_split_few",
+        "kind": "deduct",
+        "desc": "分段不足（段数太少）",
+        "thresholds": {
+          "min_seg": 3,
+          "min_chars": 150,
+          "pen": 1.5,
+          "avg_ref": 150,
+          "avg_pen": 1.0
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-09：基本没分段也是结构问题",
+        "flag": "分段不足：{nseg} 段装 {nchar} 字",
+        "code_hint": "_T_SPLIT_MINSEG",
+        "side": "score"
+      },
+      {
+        "id": "lang_fragment",
+        "kind": "deduct",
+        "desc": "段落碎片（一行一句成为主体）",
+        "thresholds": {
+          "short_para": 15,
+          "r_heavy": 0.5,
+          "pen_heavy": 1.5,
+          "r_mid": 0.3,
+          "pen_mid": 1.0
+        },
+        "enabled": false,
+        "status": "已推翻",
+        "basis": "校准：七篇样文（作者自写与网友作品混用）的段落碎片率",
+        "note": "待核原因：新会话指出「一句一段是微小说的拍子」，可能是误判。作者尚未表态。\n[2026-11-13 已推翻] 作者 2026-11-13：「短段落其实还好吧，并不会影响阅读。」它和已被否掉的短段判定是同一件事。",
+        "flag": "段落碎片：{nseg} 段里 {short} 段不足 15 字（{pct}%）",
+        "code_hint": "_T_FRAG_RH",
+        "side": "score",
+        "thresholds_source": "definition"
+      },
+      {
+        "id": "lang_concrete",
+        "kind": "add",
+        "desc": "具体化率 = 1 − 有情绪概括的句子数 / 总句数（抽象词周围 window 字内无具体词才算悬空）",
+        "thresholds": {
+          "window": 7,
+          "abstract_words": "ABSTRACT（情绪概括词，不含 CONCEPT 抽象概念词）"
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-07：多用心理/动作/环境，少用概括",
+        "note": "2026-11-13 改了两处：① 从「整句有无具体词」改成「抽象词周围 7 字有无具体词」——「他笑着说我很心酸」以前因为有个『笑』被判成具体；② 词表拆成 ABSTRACT（情绪概括，参与计算）和 CONCEPT（抽象概念，不参与）——「闲暇时光」「记忆中的点滴」被误判成概括。已知残留：像「心中有些激动，忍不住想高声呐喊」这种「抽象词 + 远处具体动作」的组合会被标，但那其实是好写法。\\n[2026-11-13 定稿] 作者 2026-11-07「多用心理/动作/环境，少用概括」。判据清楚，只差词表继续扩。",
+        "code_hint": "abs_sents",
+        "side": "score"
+      }
+    ]
+  },
+  "logic": {
+    "label": "逻辑",
+      "judge_hint": "顺着每条「因为……所以……」问一句「中间呢」：读者能不能自己补上，补不上就是断了，补得费劲就是弱相关。",
+    "full": 12.0,
+    "deduct_full": 8.0,
+    "add_full": 4.0,
+    "rules": [
+      {
+        "id": "logic_hard_error",
+        "kind": "deduct",
+        "desc": "硬伤：时间线冲突 / 数字不一致 / 人物群体消失 / 指代不清",
+        "thresholds": {
+          "kinds": [
+            "timeline",
+            "number",
+            "vanish",
+            "pronoun"
+          ]
+        },
+        "enabled": false,
+        "status": "已推翻",
+        "basis": "第一版的四查，补充依据里没有直接对应，需作者确认是否保留",
+        "flag": null,
+        "code_hint": null,
+        "note": "2026-11-13：code_hint 改指 p7 的「B. 数字与量词」小节。这条是第一版的四查（时间线/数字/群体消失/指代），补充依据里没有直接对应，是否保留要问作者。\n[2026-11-13 已推翻] 第一版的「四查」（时间线/数字/群体消失/指代）——那是查错，不是判据。补充依据的逻辑一节讲的是因/果/过程，没有这一说。逻辑已有 v2（p7_logic_v2），这条退休。",
+        "side": "score",
+        "thresholds_source": "definition"
+      },
+      {
+        "id": "logic_cause_ratio",
+        "kind": "add",
+        "desc": "变化有因：急变前 2 段内有交代/铺垫的比例",
+        "thresholds": {
+          "window": 2,
+          "funcs": [
+            "交代",
+            "铺垫"
+          ]
+        },
+        "enabled": false,
+        "status": "已推翻",
+        "basis": "作者 2026-11-10：逻辑分因/果/思考过程三部分，只查「急变前有没有交代」是把逻辑当成了因果检查",
+        "note": "2026-11-13 彻底停用，被 p7_logic_v2 的完整率/铺垫率/延伸率取代。代码留着但不再调用。",
+        "code_hint": "cause_ratio",
+        "side": "score"
+      },
+      {
+        "id": "logic_stage_setup",
+        "kind": "add",
+        "desc": "逻辑铺垫：因果之前，让因果链有具体根源、不像在编（决定下限）",
+        "thresholds": {
+          "min_setup_rate": 0.0
+        },
+        "enabled": false,
+        "status": "定稿",
+        "basis": "补充依据.txt 131-134 行：铺垫让因果链「有了具体的根源，不再是突然冒出来的玩意儿」",
+        "note": "2026-11-13 落地：p7_logic_v2 里算 has_setup（标注的 process.setup 段）。扣分侧 = 完整率×0.7 + 铺垫率×0.3。待核：这个 0.7/0.3 的权重是我定的。\\n[2026-11-13 定稿] 补充依据 147-150 行。落地清楚。",
+        "code_hint": "has_setup",
+        "side": "score"
+      },
+      {
+        "id": "logic_stage_process",
+        "kind": "add",
+        "desc": "逻辑过程：因果之间，中间环节能不能把因和果连上",
+        "thresholds": {
+          "weight": 1.4
+        },
+        "enabled": false,
+        "status": "定稿",
+        "basis": "补充依据.txt 128-130 行：过程是帮助读者关联因果的中间环节",
+        "note": "2026-11-13 落地：p7_logic_v2 里算 has_process（process.middle 有没有段）。权重 1.4 最高——只有因和果没有过程，等于简答题只填最后一步。待核：权重是我定的。\\n[2026-11-13 定稿] 补充依据 147-150 行。落地清楚。",
+        "code_hint": "has_process",
+        "side": "score"
+      },
+      {
+        "id": "logic_stage_extend",
+        "kind": "add",
+        "desc": "逻辑延伸：因果之后，有没有搭出想象空间的框架（防「就这？」）",
+        "thresholds": {},
+        "enabled": false,
+        "status": "定稿",
+        "basis": "补充依据.txt 135-144 行：延伸是让读者不产生「就这？」的嫌弃感",
+        "note": "2026-11-13 落地：p7_logic_v2 里算 has_extend，进加分侧（延伸率）。作者定的「延伸定上限」——防读者说「就这？」。\\n[2026-11-13 定稿] 补充依据 147-150 行。落地清楚。",
+        "code_hint": "has_extend",
+        "side": "score"
+      },
+      {
+        "id": "logic_chain_origin",
+        "kind": "add",
+        "desc": "逻辑链的来源：天然不用修饰；后加的必须「梳妆打扮」（同款+可爱），否则是硬接",
+        "thresholds": {
+          "pen": 0.15,
+          "dressed_min": 0.5
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-12：文章主干本身就由相当数量的天然逻辑链组成",
+        "note": "2026-11-13 落地：标注里加 origin（天然/后加）和 dressed（0~1）。只有「后加 + 没打扮」才扣，天然的本来就不用打扮。扣分 = 0.15 × (没打扮的条数 / 后加的总条数)。0.15 是我定的——打扮是修饰，不该占掉四分之一。",
+        "code_hint": "origin",
+        "thresholds_source": "definition",
+        "side": "score"
+      },
+      {
+        "id": "logic_order",
+        "kind": "add",
+        "desc": "过程顺序：顺序 / 乱序（干扰项 / 错误项 / 抽离）——只报不判",
+        "thresholds": {
+          "kinds": [
+            "distractor",
+            "wrong_option",
+            "removal"
+          ]
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 155-169 行。作者自认「只揭示了一点点皮毛」",
+        "note": "2026-11-13 定稿，形态是「只报不判」。理由：\n补充依据 162 行的乱序三手法里，「抽离」就是「缺过程」，has_process 已经扣了；\n「干扰项 / 错误项」要判断读者会不会被带偏——那是读者的活，工具看不见。\n作者 166 行说「运用不当会造成逻辑链崩坏」，工具判不了当不当，就不假装判。\n所以它只报出哪条链用了乱序，留给 DSH 自己看。",
+        "code_hint": "过程顺序",
+        "side": "score",
+        "thresholds_source": "definition"
+      }
+    ],
+    "cap": 8.0,
+    "_note": "2026-11-13 重写：不再查硬伤/变化有因。改成验收逻辑链的因/果/过程——扣分侧=完整率×0.7+铺垫率×0.3（下限），加分侧=延伸率（上限）。"
+  },
+  "link": {
+    "label": "衔接",
+      "judge_hint": "逐段问「下一段为什么接在这儿」。答不上来的地方，读者就会出戏。",
+    "full": 7.0,
+    "rules": [
+      {
+        "id": "link_serial",
+        "kind": "deduct",
+        "desc": "串联：相邻段之间有没有可数的关联信号（段首承接词 / 段首指代 / ≥3字共同实体 / 时间标记）",
+        "thresholds": {
+          "pron_head": 8,
+          "entity_min_len": 3
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 11 行：「相邻段落之间，相同要素的纽带不再是必须，只需要具备逻辑上的关联即可」",
+        "code_hint": "段首指代",
+        "note": "2026-11-13 改严两处：① 代词只看段首 8 字（旧版扫全段，「那我会怎样」→「导师沉默」被误判成串联）；② 共同实体从 2 字起改成 3 字起（2 字切片切出「载里」「天夜」这种碎词，污染了那 17 条待核查的「最高覆盖要素」）。仍然待核：「逻辑关联」本质上测不准，只能靠词面信号近似。\\n[2026-11-13 定稿] 作者 2026-11-09 + 补充依据 11 行。改严之后误判少了。仍然测不准，所以报未测——那是设计，不是缺陷。\n[2026-11-14] 报告那一行加了「自动判的只覆盖 X% 的相邻段」：待核查的组不进分母，所以串联率只代表看得见的那部分。",
+        "side": "score"
+      },
+      {
+        "id": "link_unmeasured",
+        "kind": "deduct",
+        "desc": "样本太少或信号太低时判不了，报未测",
+        "thresholds": {
+          "min_pairs": 3,
+          "min_rate": 0.3
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "2026-11-09 修：只有 1 对时「接上 1 对 = 100%」不含信息；2026-11-13 加：串联率 < 30% 说明工具看不见，不该判文章差",
+        "code_hint": "可数信号只覆盖",
+        "note": "有两篇 17% / 29% 落进这一档——那是 80 分的文章，不是断成筛子。工具看不见的部分，让 DSH 自己读。",
+        "side": "score"
+      },
+      {
+        "id": "link_merge_test",
+        "kind": "add",
+        "desc": "【待建】合并测试：相邻句子有逻辑关联但能不能合并成一句",
+        "thresholds": {
+          "source": "definition"
+        },
+        "enabled": false,
+        "status": "待建",
+        "basis": "补充依据.txt 第 6-10 行：能合并=一个长句的分割，不算衔接问题",
+        "code_hint": null,
+        "note": "这是衔接里最硬的一条判据，但「能不能合并」要操作化——需要语义判断，工具目前做不到。",
+        "side": "score"
+      }
+    ],
+    "thresholds": {
+      "min_pairs": 3,
+      "min_rate": 0.3
+    }
+  },
+  "fubi": {
+    "label": "伏笔",
+      "judge_hint": "看每条坑有没有「值得记住」的推力：读者会不会记着它、回收时会不会「原来如此」；坑太密太浅也是问题。",
+    "full": 4.0,
+    "deduct_full": 4.0,
+    "add_full": 0.0,
+    "rules": [
+      {
+        "id": "fubi_dig",
+        "kind": "deduct",
+        "desc": "挖坑 = 整条伏笔里最先出现因或果的段落",
+        "thresholds": {},
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 33 行",
+        "code_hint": "read_items",
+        "thresholds_source": "definition",
+        "side": "score"
+      },
+      {
+        "id": "fubi_fill",
+        "kind": "deduct",
+        "desc": "填坑 = 整条伏笔里最后出现因或果的段落",
+        "thresholds": {},
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 33 行",
+        "code_hint": "resolve",
+        "thresholds_source": "definition",
+        "side": "score"
+      },
+      {
+        "id": "fubi_short_effect",
+        "kind": "deduct",
+        "desc": "短伏笔看「果」：果够不够具体，能不能从果倒推因",
+        "thresholds": {
+          "min_quality": 0.6
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 35 行：短伏笔「果」更重要",
+        "code_hint": "effect_q",
+        "side": "score"
+      },
+      {
+        "id": "fubi_long_cause",
+        "kind": "deduct",
+        "desc": "长伏笔看「因」：因够不够强",
+        "thresholds": {
+          "min_quality": 0.6
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 35 行：长伏笔「因」更重要",
+        "code_hint": "cause_q",
+        "side": "score"
+      },
+      {
+        "id": "fubi_setup_density",
+        "kind": "deduct",
+        "desc": "长伏笔期间的铺垫层数（按氛围层数算，不是按段数）",
+        "thresholds": {
+          "min_layers": 2
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 30-34 行：太疏影响连贯，太密影响自然",
+        "code_hint": "setup_layers",
+        "note": "待核：作者还没给疏密的门槛。我先用「少于 2 层算太疏」。\n[2026-11-13 定稿] 「少于 2 层算太疏」是我定的。补充依据 34 行说「太疏影响连贯」，方向对，门槛先用着。",
+        "side": "score"
+      },
+      {
+        "id": "fubi_long_short_split",
+        "kind": "deduct",
+        "desc": "长短伏笔的分界线：跨度 ≥ 全文段数 × 0.4 算长",
+        "thresholds": {
+          "long_ratio": 0.4,
+          "min_long_span": 3
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 26 行：长伏笔「挖坑后往往需要经过相当数量甚至一篇文章的大部分段落」",
+        "code_hint": "LONG_RATIO",
+        "note": "待核：第一版用绝对门槛（全文≥6000字 + 跨度≥120段），但我们这七篇全在 2000 字以内，一条长伏笔都出不来。按「大部分段落」的字面意思改成相对门槛，等作者核定。\n[2026-11-13 定稿] 相对门槛（跨度 ≥ 全文段数的 40%）是我定的。补充依据说的是「一篇文章的大部分段落」，相对门槛比绝对字数更贴原意。",
+        "side": "score"
+      },
+      {
+        "id": "fubi_score_cap",
+        "kind": "deduct",
+        "desc": "算分上限：短伏笔最多算 2 条，长伏笔最多算 1 条",
+        "thresholds": {
+          "max_short": 2,
+          "max_long": 1
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-13 口述",
+        "code_hint": "MAX_SHORT",
+        "side": "score"
+      },
+      {
+        "id": "fubi_uncounted_hint",
+        "kind": "hint",
+        "desc": "没算分的伏笔也要检查，有问题要出 HINT 进改良意见",
+        "thresholds": {},
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-13：「有些没有算分的地方不能在改良建议时忽略……如果没算分的伏笔有问题，一样要在综合总结之后的改良建议里提出意见」",
+        "code_hint": "HINT|fubi",
+        "thresholds_source": "definition",
+        "side": "score"
+      },
+      {
+        "id": "fubi_inner",
+        "kind": "add",
+        "side": "bonus",
+        "desc": "长伏笔的内外结合：标注人判「外显与内敛结合得如何」（额外加分 6 分）",
+        "thresholds": {
+          "w_inner": 6.0,
+          "source": "annotation:combined"
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "补充依据.txt 第 35 行：长伏笔外显与内敛结合",
+        "code_hint": "BONUS|fubi_inner",
+        "note": "2026-11-13 改：原来用 cause_q × effect_q 近似，但「因够强」在 fubi_long_cause 里已经算过，两头占。改成标注人直接判 combined。这一项符合「额外加分要量卓越」的标准——结合才是高手。\\n[2026-11-13 定稿] 补充依据 35 行「外显与内敛结合」。改成人工判 combined 之后没有重复计分。"
+      }
+    ],
+    "thresholds": {
+      "max_short": 2,
+      "max_long": 1,
+      "long_ratio": 0.4,
+      "min_long_span": 3,
+      "_note": "2026-11-13 我定的相对门槛：跨度 ≥ 全文段数×0.4 算长伏笔。第一版用绝对门槛（全文≥6000字 + 跨度≥120段），但补充依据原话是「一篇文章的大部分段落」，是相对概念。待作者核定。",
+      "w_inner": 6.0,
+      "inner_min": 0.7
+    }
+  },
+  "desc": {
+    "label": "描写叙述",
+      "judge_hint": "看情感落在哪、有没有隔着。哪几处是「作者在告诉我他悲伤」，而不是「我看见他悲伤」。",
+    "full": 15.75,
+    "rules": [
+      {
+        "id": "desc_carrier",
+        "kind": "deduct",
+        "desc": "承载物：情感落在哪个具体的人/物/事/景上，以及有没有「因」",
+        "thresholds": {
+          "w_cover": 0.6,
+          "w_cause": 0.4
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-07：每段都该有承载物",
+        "code_hint": "carrier",
+        "note": "2026-11-13 改成 v2：不再是「ok比例」，而是 覆盖率×0.6 + 有因率×0.4。",
+        "side": "score"
+      },
+      {
+        "id": "desc_kind_cover",
+        "kind": "hint",
+        "desc": "描写对象分布（景/物/人/事/心理/环境，另有「无」表示这一段没有描写对象）——只提示，不扣分",
+        "thresholds": {
+          "types": [
+            "角色",
+            "环境",
+            "心理",
+            "事件",
+            "其他"
+          ]
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "（无直接依据，第一版自己定的分类）",
+        "code_hint": "TYPES",
+        "note": "2026-11-13 从扣分降级为提示。理由：它和共鸣的 D 用同一份 dtype 数据，同一件事扣两次；而且「五类」这套分类补充依据里没有。\\n[2026-11-13 作者给了正版分类] 换成他说的六类（景、物、人、事、心理、环境），另加「无」——实测这篇 88 段里有 22 段是纯叙述（对话、时间标记、信息交代），没有描写对象。原来那个「其他」装了 27 段（31%），一个三成内容进不去的分类说明分类本身是错的。\\n注意：六类不是「越多越好」的评分项——作者的原话是不同类型有不同判法（声音按台阶、视觉按角度、心理按台阶），少了哪一类不是问题。这一条只报分布，让 DSH 知道这篇文章在哪些描写类型上是空的。\\n[2026-11-13 定稿] 它只是提示项，不参与算分，不需要作者核。",
+        "side": "score"
+      }
+    ],
+    "thresholds": {
+      "w_cover": 0.6,
+      "w_cause": 0.4
+    }
+  },
+  "desc_measures": {
+    "_说明": "描写判法表。同一处描写，判法不同——台阶有先后（走到第几级就是第几级），菜单并列（用了哪几个角度，无高低）。代码按 measure 决定打分方式：台阶进加分侧看最高级数，菜单只报覆盖、永远不按高低加分、也不接受级数。",
+    "_来源": "作者 2026-11-13 口述（交接文档「六、判据的正确理解」）",
+    "_状态": "只做读数，还没进分——作者的「描述」补充依据全文没写完（2026-11-13、11-14 两次说等），写完再定加分怎么算。",
+    "_未建": "景 / 物 / 人 / 事 / 环境 是描写对象，不是通道，作者还没给这五类的判法。没标通道的承载物照旧只看落住率。",
+    "channels": {
+      "声音": {
+        "measure": "台阶",
+        "levels": [
+          "拟声词",
+          "直接互动",
+          "细节+比喻"
+        ],
+        "status": "定稿",
+        "basis": "作者 2026-11-13：声音的台阶是「拟声词 → 直接互动 → 细节+比喻」",
+        "note": "音乐是例外，单列一行：时间→空间翻译不了。"
+      },
+      "视觉": {
+        "measure": "菜单",
+        "angles": [
+          "颜色",
+          "光影",
+          "主观感受"
+        ],
+        "status": "定稿",
+        "basis": "作者 2026-11-13：视觉的三样是并列的角度，不是梯度，「第三级不一定更好」",
+        "note": "所以这一栏不给级数、不按高低加分。用了哪几个角度是读出来的事实，排名次留给 DSH 自己判。"
+      },
+      "心理": {
+        "measure": "台阶",
+        "levels": [
+          "直接下结论",
+          "生理反应",
+          "潜意识错觉"
+        ],
+        "optional_levels": [
+          3
+        ],
+        "status": "定稿",
+        "basis": "作者 2026-11-13：心理的台阶是「直接下结论 → 生理反应 → 潜意识错觉（第三级可选）」",
+        "note": "第三级可选：停在第二级不算缺陷，只是不拿满卓越分。"
+      },
+      "音乐": {
+        "measure": "特殊",
+        "ways": [
+          "命名曲名",
+          "大幅旁敲侧击"
+        ],
+        "status": "定稿",
+        "basis": "作者 2026-11-13：音乐的时间→空间翻译不了，只能命名曲名或大幅旁敲侧击",
+        "note": "两种做法都只是及格线，不比高低，所以不进加分侧，只报用了哪一种。"
+      }
+    },
+    "_待作者": "加分侧要不要从「落住率」改成「最高到第几级」，以及菜单类怎么算——等「描述」依据全文。现在两者都只报读数。"
+  },
+  "theme": {
+    "label": "暗线",
+      "judge_hint": "先看这条暗线值不值得藏：它有没有第二层意思；再看交集点，读者读到那儿会不会「哦」一下。",
+    "full": 9.08,
+    "rules": [
+      {
+        "id": "theme_fit",
+        "kind": "deduct",
+        "desc": "交集点质量 = Σ(人估契合度 × 可数关联度)。【6 分是标注人估的】",
+        "thresholds": {
+          "ideal_ratio": 0.75
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-06 的暗线契合度与关联度设计",
+        "code_hint": "rel_score",
+        "note": "2026-11-14 靶心加容差：差 1 步不罚。原来是「一点」靶心，短篇里写得隐（多推）和写得显（全写明）两头都挨罚，交集点几乎不可能及格。\n2026-11-13 加标注：这 6 分里契合度是标注人估的，关联度（六要素覆盖）也是标注人填的，整块都是人的判断，不是工具测量。不算未测（不然这项就废了），但报告会明确标出 theme_human_ratio=0.75。\\n[2026-11-13 定稿] 标注清楚「6 分是标注人估的」之后，它就是如实报告。",
+        "side": "score"
+      },
+      {
+        "id": "theme_position",
+        "kind": "deduct",
+        "desc": "位置分 = 交集点落点的平均权重（0.3 细节 / 0.6 局部 / 1.0 全文）。【2 分是工具真算的】",
+        "thresholds": {},
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-06：交集点要落在波动节点上",
+        "code_hint": "theme_position_ratio",
+        "note": "这是暗线里唯一可测的部分——它用 P1 的强度/方向算出波动节点，再看交集点有没有踩上。\n[2026-11-14 改归一] 原来是「踩中权重 ÷ 全部节点权重」：分母随篇幅涨、分子被交集点个数封顶，1091 段那篇 4 个交集点只拿 1.4%，等于按篇幅扣分。改成按交集点归一。",
+        "thresholds_source": "definition",
+        "side": "score"
+      }
+    ],
+    "thresholds": {
+      "w_quality": 6.0,
+      "w_position": 2.0,
+      "human_ratio": 0.75
+    }
+  },
+  "joke": {
+    "label": "笑料与梗",
+      "judge_hint": "先看这篇的调子要不要笑点。要的话，笑点是不是在读者有准备的地方炸；不要的话，这一项就别提。",
+    "full": 2.0,
+    "rules": [
+      {
+        "id": "joke_match",
+        "kind": "add",
+        "desc": "笑点：释放+向上+反转词，或损主角的自作多情，或人工标 joke:true",
+        "thresholds": {
+          "density": 0.8,
+          "position": 0.8,
+          "fresh": 0.4
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-09：黑色幽默/荒诞反差也算笑点（靠 P1 的 joke:true 标）",
+        "code_hint": "jokes",
+        "note": "2026-11-14 新增门槛：密度不到 1 个/千字就报未测、退出分母——抒情文/严肃文没有笑点是正常的，不为「不好笑」扣分（作者实测要求）。",
+        "side": "score"
+      }
+    ]
+  },
+  "_全局参数": {
+    "gravity": 1.6,
+    "gravity_note": "抛物线重力，1.0 太挤、2.0 以上饱和",
+    "curve": "max(线性, 抛物线) —— 2026-11-08 修掉死区",
+    "resonance": {
+      "formula": "0.85 + 0.15 × C",
+      "C": "0.5P + 0.3D + 0.2B",
+      "note": "最多打 85 折。作者：作者做了的东西不会白做，但读者没接到就打折。2026-11-14：单句成段且上一段是「释放/留白」时记渐变、不记跳变（散文的换气不是读者跟不上）"
+    },
+    "add_curve": "x ** 1.6（不封顶）",
+    "add_curve_note": "2026-11-13 改。旧的是 min(1, 1.6x²)，x≥0.79 就封顶，导致具体化率 0.86 和 1.00 拿一样的分，好文章拉不开。新曲线 x^1.6：低端 0.3→0.146（旧 0.144，几乎不变），高端 0.86→0.786（旧 1.0），1.0→1.0。代价是中间段变严，全体降 2~3 分——那是以前虚的分。"
+  },
+  "ending": {
+    "label": "结尾",
+      "judge_hint": "看结尾是「说完」还是「停住」：说完的没有余味，停住的读者会自己往下想。",
+    "cap": 2.0,
+    "kind_note": "bonus：不占分项权重，独立加减分，范围 −1 ~ +2",
+    "thresholds": {
+      "base_reverse": 1.0,
+      "base_blank": 0.7,
+      "base_plain": 0.25,
+      "max_bonus": 2.0,
+      "max_penalty": 1.0,
+      "pen_link": 0.3,
+      "pen_setup": 0.4,
+      "link_min": 0.6,
+      "setup_min": 0.6,
+      "w_trend": 6.0,
+      "w_form": 4.0,
+      "link_full": 0.85
+    },
+    "rules": [
+      {
+        "id": "ending_form",
+        "kind": "add",
+        "desc": "形式：直接终结 / 首尾相连（首尾相连必须逻辑强相关）",
+        "thresholds": {
+          "forms": [
+            "直接终结",
+            "首尾相连"
+          ],
+          "link_full": 0.85,
+          "link_min": 0.6,
+          "w_form": 4.0
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-09：结尾形式两种；首尾相连必须逻辑强相关，不相关要扣",
+        "code_hint": "首尾相连",
+        "note": "首尾相连但逻辑相关度 <0.60 → 扣 0.30。没标 link_quality 就报未测，不猜。",
+        "side": "bonus"
+      },
+      {
+        "id": "ending_trend",
+        "kind": "add",
+        "desc": "走向：顺势 / 反转 / 留白；加分上限 反转 > 留白 > 顺势",
+        "thresholds": {
+          "trends": [
+            "顺势",
+            "反转",
+            "留白"
+          ],
+          "base_reverse": 1.0,
+          "base_blank": 0.7,
+          "base_plain": 0.25,
+          "w_trend": 6.0,
+          "setup_min": 0.6,
+          "pen_setup": 0.4
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-09：加分上限 反转 > 留白 > 顺势；反转做砸要扣分",
+        "code_hint": "base_reverse",
+        "note": "反转但前文铺垫 <0.60 → 扣 0.40。没标 setup_quality 就报未测。留白的细分判据作者还没给，现在只按「比顺势高、比反转低」算——标了待核。",
+        "side": "bonus"
+      },
+      {
+        "id": "ending_blank_criteria",
+        "kind": "add",
+        "desc": "留白分档：结尾 1.0 / 中段有铺垫 0.7 / 中段无铺垫 0.4",
+        "thresholds_source": "definition",
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者说过「留白的加分判据还没给」",
+        "code_hint": "留白分档",
+        "note": "2026-11-13 定稿（我判断的，作者还没给依据）。\n判断标准：留白好不好，看读者有没有材料去补。\n  留白在结尾               → 前面整篇都是材料        → 1.0\n  留白在中段 + 前面有铺垫   → 有东西可推              → 0.7\n  留白在中段 + 前面没铺垫   → 读者不知道在留什么      → 0.4\n能算出来：P1 的功能标签 + 段位置（结尾 = 最后 2 段内）。\n分档乘在走向分上。",
+        "side": "score",
+        "thresholds": {
+          "at_end": 1.0,
+          "mid_with_setup": 0.7,
+          "mid_bare": 0.4,
+          "end_window": 2,
+          "prep_lookback": 3
+        }
+      }
+    ],
+    "_budget": "2026-11-13 作者：额外加分的上限是总分的 20%（20/100）。现在三项可达 16：结尾走向 6 + 结尾形式 4 + 长伏笔内外结合 6。留 4 分给以后的新依据——不为了填满而凑项。（曾有两项被移出：长伏笔外显度→基本功归分项；铺垫自然度→缺陷归扣分）"
+  },
+  "experience": {
+    "label": "整体阅读体验系数",
+    "thresholds": {
+      "floor": 0.85,
+      "min_seg": 3,
+      "seg_chars": 150,
+      "avg_bad": 150,
+      "para_long": 200
+    },
+    "rules": [
+      {
+        "id": "exp_seg",
+        "kind": "deduct",
+        "side": "score",
+        "desc": "段数太少（一票否决）：少于 3 段且超 150 字 = 一整块，读者没有换气口",
+        "thresholds": {
+          "min_seg": 3,
+          "seg_chars": 150
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-09「基本没分段也是结构问题」+ 2026-11-13「分段问题也会影响阅读体验」",
+        "code_hint": "s_seg",
+        "note": "2026-11-13 从语言项移到系数。移过来之后同一件事只在一边算，不两头扣。待核：它是「一票否决」，权重是我定的。\n[2026-11-13 定稿] 作者 2026-11-09「基本没分段也是结构问题」+ 2026-11-13「分段问题也会影响阅读体验」。一票否决的做法是我定的。"
+      },
+      {
+        "id": "exp_avg",
+        "kind": "deduct",
+        "side": "score",
+        "desc": "平均段长超过 150 字 → 每段太长",
+        "thresholds": {
+          "avg_bad": 150
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "同上",
+        "code_hint": "s_avg",
+        "note": "待核：阈值沿用语言项原来的 150。\\n[2026-11-13 定稿] 阈值 150 沿用语言项原来的值，作者没否定过。"
+      },
+      {
+        "id": "exp_short",
+        "kind": "deduct",
+        "side": "score",
+        "desc": "短段占比：>50% 碎 / >30% 偏碎（一句一段是拍子，跟不上就成碎）",
+        "thresholds": {
+          "short_len": 15,
+          "short_heavy": 0.5,
+          "short_mid": 0.3
+        },
+        "enabled": false,
+        "status": "已推翻",
+        "basis": "同上",
+        "code_hint": null,
+        "note": "2026-11-13 作者：「短段落其实还好吧，并不会影响阅读。」一句一段是给读者换气，不是让他累。「段长跨度大」绝大多数时候是因为有很短的段，短段既然不是问题，跨度也一并去掉。",
+        "thresholds_source": "definition"
+      },
+      {
+        "id": "exp_span",
+        "kind": "deduct",
+        "side": "score",
+        "desc": "段长跨度：最长段 ÷ 最短段，20 倍以上算颠",
+        "thresholds": {
+          "span_bad": 20.0
+        },
+        "enabled": false,
+        "status": "已推翻",
+        "basis": "（我的判断）",
+        "code_hint": null,
+        "note": "2026-11-13 作者：「短段落其实还好吧，并不会影响阅读。」一句一段是给读者换气，不是让他累。「段长跨度大」绝大多数时候是因为有很短的段，短段既然不是问题，跨度也一并去掉。",
+        "thresholds_source": "definition"
+      },
+      {
+        "id": "exp_coefficient",
+        "kind": "deduct",
+        "side": "score",
+        "desc": "R = 0.85 + 0.15 × E；E = 段数项 ×（其余三项平均）。只乘总分，不乘额外加分",
+        "thresholds": {
+          "floor": 0.85
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "作者 2026-11-13：总分计算时，要在最后有一个整体阅读体验的系数判定",
+        "code_hint": "lt_experience",
+        "note": "和共鸣区分：共鸣管内容层，这个管形式层。范围 [0.85,1.0]——共鸣已是乘数，两个宽范围叠起来会把分砍掉三成以上。\\n[2026-11-13 定稿] 作者明确了要有这一层系数。范围 [0.85,1.0] 是我定的，但那是参数不是判据。"
+      },
+      {
+        "id": "exp_long",
+        "kind": "deduct",
+        "side": "score",
+        "desc": "超长段：单段超过 200 字，一口气读不完",
+        "thresholds": {
+          "para_long": 200,
+          "hard_ratio": 0.3
+        },
+        "enabled": true,
+        "status": "定稿",
+        "basis": "（我的判断，作者否掉了短段，那留着的读感障碍只有「太长」）",
+        "code_hint": "s_long",
+        "note": "待核：200 字这条线是我定的。有一篇最长 246 字一段，被判超长。\n[2026-11-13 定稿] 200 字这条线是我定的。它比「短段占比」稳——长段是真的读着累。"
+      }
+    ]
+  }
+}
