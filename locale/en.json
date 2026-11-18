@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "title": "Soul Radar — reader-response analysis for DSH",
+    "description": "Reader-response analysis for DSH. It simulates a real reader's emotional reaction to a piece of writing and parses it into countable data with evidence: where interest lifts, where it drops, where the reader gets lost. It reports the parsed result and its basis; the DSH agent makes the final call and writes the feedback.",
+    "detail": "docs/DETAIL.md"
+  },
+  "tools": {
+    "lt_score": {
+      "name": "Score a piece",
+      "description": "Read a piece the way a reader would, and return the reading data plus a report written for the calling agent."
+    },
+    "lt_rules": {
+      "name": "List the criteria",
+      "description": "Show every scoring criterion: what it measures, its status, and the evidence it rests on."
+    },
+    "lt_demo": {
+      "name": "Run the built-in sample",
+      "description": "Score the bundled sample article, so an agent can see what a report looks like without supplying a piece."
+    }
+  }
+}
